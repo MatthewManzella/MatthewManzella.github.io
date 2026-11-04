@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>October 2026 · Matthew Manzella</title>
+<meta name="description" content="What Matthew Manzella built, studied, and solved outside of work in October 2026.">
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Matthew Manzella</a>
+    <nav aria-label="Main">
+      <ul>
+        <li><a href="../index.html#areas">Areas</a></li>
+        <li><a href="../index.html#cleverbound">CleverBound</a></li>
+        <li><a href="../index.html#plan">Plan</a></li>
+        <li><a href="../index.html#issues" aria-current="page">Issues</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="issue">
+  <p class="issue-label">Issue No. 02</p>
+
+  <h1 class="issue-title">October <em>2026</em></h1>
+
+  <p class="lede">October was mostly one project: moving CleverBound's data out of text files and into its PostgreSQL database. CleverBound is a school boundary planning website I built that assigns neighborhoods to schools based on limits a user sets. The switch went live with every result unchanged and no downtime.</p>
+
+  <ul class="glance">
+    <li><b>6</b><a href="#build">things built</a></li>
+    <li><b>6</b><a href="#read">topics studied</a></li>
+    <li><b>12</b><a href="#solve">challenges completed</a></li>
+  </ul>
+  <p class="tech"><span>Technologies</span> Python, Flask, PostgreSQL, psycopg 3, Supabase, React, TypeScript, Render, GitHub, Claude Code</p>
+
+  <section id="build">
+    <div class="section-head"><span class="num">i.</span><h2>Build</h2></div>
+    <p class="section-note">Saturday building time this month went almost entirely to the software engineering phase of my CleverBound roadmap: connecting the app to its database.</p>
+
+    <article class="entry">
+      <time datetime="2026-10-17">Oct 17</time>
+      <div>
+        <h3>Switched the algorithm's data source to PostgreSQL</h3>
+        <p class="plain">CleverBound's algorithm used to read school and neighborhood data from text files bundled with the code. I changed it to read from a database I created instead, without changing any results.</p>
+        <figure class="dg">
+          <svg viewBox="0 0 560 210" role="img" aria-label="The old text-file input to the algorithm is removed. The new input runs from the PostgreSQL database through a reader module into the same, unchanged algorithm.">
+            <defs><marker id="o1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" class="ah"/></marker></defs>
+            <g class="fade"><path class="bx" d="M10 14 h26 l10 10 v38 h-36 z"/><path class="ln" d="M36 14 v10 h10" style="stroke-width:1"/><path class="grid" d="M17 36 h22 M17 44 h22 M17 52 h14"/><path class="bx" d="M52 14 h26 l10 10 v38 h-36 z"/><path class="ln" d="M78 14 v10 h10" style="stroke-width:1"/><path class="grid" d="M59 36 h22 M59 44 h22 M59 52 h14"/><path class="bx" d="M94 14 h26 l10 10 v38 h-36 z"/><path class="ln" d="M120 14 v10 h10" style="stroke-width:1"/><path class="grid" d="M101 36 h22 M101 44 h22 M101 52 h14"/></g>
+            <text class="sm" x="70" y="84" text-anchor="middle">text files (old)</text>
+            <path class="ln dash fade" d="M136 40 L405 80"/>
+            <path class="x" d="M264 54 l12 12 M276 54 l-12 12"/>
+            <path class="bx hl" d="M20 122 v46 a50 12 0 0 0 100 0 v-46"/><ellipse class="bx hl" cx="70" cy="122" rx="50" ry="12"/>
+            <text class="sm" x="70" y="200" text-anchor="middle">PostgreSQL (new)</text>
+            <path class="ln" d="M124 150 H207" marker-end="url(#o1)"/>
+            <rect class="bx dk" x="210" y="128" width="130" height="44"/>
+            <text class="on-dk" x="275" y="149" text-anchor="middle">Reader module</text>
+            <text class="sm on-dk" x="275" y="165" text-anchor="middle">LineSource</text>
+            <path class="ln" d="M340 150 L413 124" marker-end="url(#o1)"/>
+            <circle class="ln ac dash" cx="470" cy="100" r="64"/>
+            <circle class="bx" cx="470" cy="100" r="54"/>
+            <text x="470" y="98" text-anchor="middle">Algorithm</text>
+            <text class="sm" x="470" y="116" text-anchor="middle">unchanged</text>
+          </svg>
+          <figcaption>The reader module hands the algorithm data in exactly the shape the text files used to, so the algorithm itself did not need to change.</figcaption>
+        </figure>
+        <dl class="facts">
+          <dt>Why</dt><dd>With text files, every data update required a code change and a redeploy. The same data already lived in a Supabase database I had built earlier, but integration problems with Supabase's free tier had kept me from connecting the app to it until now. In the meantime, the text files were a duplicate that had to be kept in sync by hand.</dd>
+          <dt>How</dt><dd>Wrote a reader module that queries PostgreSQL with psycopg 3 and wraps the rows in a <code>LineSource</code>, a Python <code>str</code> subclass that behaves like the old file path while carrying the data. The existing optimization pipeline ran unchanged, with small edits to four files. The Flask backend connects server-side through the Supabase Session pooler, so row-level security stays closed to the public API, and it returns a 503 if the database is unreachable.</dd>
+        </dl>
+        <ul class="stack"><li>Python</li><li>Flask</li><li>PostgreSQL</li><li>psycopg 3</li><li>Supabase</li></ul>
+      </div>
+    </article>
+
+    <article class="entry">
+      <time datetime="2026-10-17">Oct 17</time>
+      <div>
+        <h3>Added per-school-level population data</h3>
+        <p class="plain">I added the separate elementary, middle, and high school population figures the algorithm depends on to the database.</p>
+        <dl class="facts">
+          <dt>Why</dt><dd>The database stored one combined population per neighborhood. After working backward through how the original projections were calculated, I found the combined figure could not reproduce the per-level values.</dd>
+          <dt>How</dt><dd>Designed a <code>neighborhood_level_populations</code> table keyed by neighborhood and school level, plus a <code>display_order</code> column to preserve the original ordering. Seeded it with a SQL migration generated from the text files that can safely run more than once and validates its own output.</dd>
+          <dt>Result</dt><dd>501 projections (167 neighborhoods across 3 school levels) moved into the database.</dd>
+        </dl>
+        <ul class="stack"><li>PostgreSQL</li><li>SQL</li><li>Python</li></ul>
+      </div>
+    </article>
+
+    <article class="entry">
+      <time datetime="2026-10-17">Oct 17</time>
+      <div>
+        <h3>Proved the database switch produced identical results</h3>
+        <p class="plain">Before touching any live database, I built a test that runs CleverBound's algorithm on the old text files and on the new database, then compares the output.</p>
+        <figure class="dg">
+          <svg viewBox="0 0 560 225" role="img" aria-label="A results table: 162 scenarios each match across the old pipeline, new pipeline, and live API. A control row where one student was changed is correctly flagged.">
+            <text class="lbl" x="8" y="20">Scenario</text>
+            <text class="lbl" x="220" y="20" text-anchor="middle">Old pipeline</text>
+            <text class="lbl" x="360" y="20" text-anchor="middle">New pipeline</text>
+            <text class="lbl" x="495" y="20" text-anchor="middle">Live API</text>
+            <path class="ink" style="stroke-width:1" d="M0 30 H560"/>
+            <text x="8" y="49">Scenario 1</text><path class="ck" d="M213 44 l5 5 l10 -11"/><path class="ck" d="M353 44 l5 5 l10 -11"/><path class="ck" d="M488 44 l5 5 l10 -11"/><path class="grid" d="M0 58 H560"/><text x="8" y="77">Scenario 2</text><path class="ck" d="M213 72 l5 5 l10 -11"/><path class="ck" d="M353 72 l5 5 l10 -11"/><path class="ck" d="M488 72 l5 5 l10 -11"/><path class="grid" d="M0 86 H560"/><text x="8" y="105">Scenario 3</text><path class="ck" d="M213 100 l5 5 l10 -11"/><path class="ck" d="M353 100 l5 5 l10 -11"/><path class="ck" d="M488 100 l5 5 l10 -11"/><path class="grid" d="M0 114 H560"/><text x="8" y="133">…</text><text class="sm" x="220" y="133" text-anchor="middle">…</text><text class="sm" x="360" y="133" text-anchor="middle">…</text><text class="sm" x="495" y="133" text-anchor="middle">…</text><path class="grid" d="M0 142 H560"/><text x="8" y="161">Scenario 162</text><path class="ck" d="M213 156 l5 5 l10 -11"/><path class="ck" d="M353 156 l5 5 l10 -11"/><path class="ck" d="M488 156 l5 5 l10 -11"/><path class="grid" d="M0 170 H560"/>
+            <rect class="bx hl" x="0" y="184" width="560" height="36"/>
+            <text x="8" y="207">One student changed</text>
+            <text class="res" x="430" y="207" text-anchor="middle">mismatch caught, as intended</text>
+          </svg>
+          <figcaption>All 162 scenarios produced character-for-character identical output three ways. The last row is the deliberate test that proved the check can fail.</figcaption>
+        </figure>
+        <dl class="facts">
+          <dt>Why</dt><dd>If a school boundary plan changes because of an internal code change, that is a bug, even if no one can tell why.</dd>
+          <dt>How</dt><dd>Restored the production backup into a local PostgreSQL instance, ran the migration there, and wrote <code>equivalence_check.py</code>. It runs 162 planning scenarios through the text-file pipeline, the database pipeline, and a live request to the API, comparing output character by character. As a negative control, I changed one student in the data to confirm the check would fail.</dd>
+          <dt>Result</dt><dd>530 of 530 data rows and 162 of 162 scenarios matched, and the one-student change was caught.</dd>
+        </dl>
+        <ul class="stack"><li>Python</li><li>PostgreSQL</li></ul>
+      </div>
+    </article>
+
+    <article class="entry">
+      <time datetime="2026-10-17">Oct 17</time>
+      <div>
+        <h3>Simplified the AI assistant's permissions</h3>
+        <p class="plain">I removed most of the custom permission rules I had added in September to Claude Code, the AI coding assistant I use for my projects.</p>
+        <dl class="facts">
+          <dt>Why</dt><dd>They kept interrupting routine work with approval prompts without adding much protection.</dd>
+          <dt>How</dt><dd>Reset the settings to the tool's default auto mode and kept nine deny rules that block it from reading credential files (SSH keys, AWS keys, and its own login token) and from editing Git hooks.</dd>
+        </dl>
+        <ul class="stack"><li>Claude Code</li></ul>
+      </div>
+    </article>
+
+    <article class="entry">
+      <time datetime="2026-10-24">Oct 24</time>
+      <div>
+        <h3>Released the database switch to production with no downtime</h3>
+        <p class="plain">I rolled out the move from text files to the database in stages: the test database first, then the live database, then the new backend code, checking the results at each step.</p>
+        <figure class="dg">
+          <svg viewBox="0 0 560 250" role="img" aria-label="A vertical timeline of four release steps, each verified before the next, beside a bar showing the site stayed online throughout.">
+            <rect class="acf" x="18" y="14" width="8" height="200" style="opacity:.85"/>
+            <text class="res" style="font-size:13px" transform="rotate(-90 10 114)" x="10" y="114" text-anchor="middle">site online the whole time</text>
+            <path class="ln" d="M90 30 V216"/>
+            <circle class="bx hl" cx="90" cy="30" r="13"/><text class="num" x="90" y="36" text-anchor="middle" style="font-size:16px">1</text><text x="118" y="29">Update the test database</text><text class="sm" x="118" y="47">then rerun the 162-scenario check</text><path class="ck" d="M463 30 l5 5 l10 -11"/><text class="sm" x="486" y="35">verified</text><circle class="bx hl" cx="90" cy="92" r="13"/><text class="num" x="90" y="98" text-anchor="middle" style="font-size:16px">2</text><text x="118" y="91">Update the live database</text><text class="sm" x="118" y="109">script locked to that database's ID</text><path class="ck" d="M463 92 l5 5 l10 -11"/><text class="sm" x="486" y="97">verified</text><circle class="bx hl" cx="90" cy="154" r="13"/><text class="num" x="90" y="160" text-anchor="middle" style="font-size:16px">3</text><text x="118" y="153">Add the connection on Render</text><text class="sm" x="118" y="171">ready before any new code ships</text><path class="ck" d="M463 154 l5 5 l10 -11"/><text class="sm" x="486" y="159">verified</text><circle class="bx dk" cx="90" cy="216" r="13"/><text class="on-dk" x="90" y="222" text-anchor="middle" style="font-size:16px">4</text><text x="118" y="215">Merge and deploy</text><text class="sm" x="118" y="233">new code goes live</text>
+          </svg>
+          <figcaption>Each step had to pass before the next one started, and the update scripts refused to run against the wrong database.</figcaption>
+        </figure>
+        <dl class="facts">
+          <dt>How</dt><dd>Each database had its own migration script (the update that adds the new tables and columns) that refuses to run unless the connection string matches that Supabase project's ID. Each migration ran as one transaction that rolls back if any neighborhood is missing data. I ran the production commands myself rather than through the AI assistant. I set the database connection string, <code>DATABASE_URL</code>, on Render, where the backend is hosted, before merging so the deploy had its connection ready, then merged the pull request.</dd>
+          <dt>Result</dt><dd>The 162-scenario check passed against both the test and production databases, and the site stayed up the entire time.</dd>
+        </dl>
+        <ul class="stack"><li>PostgreSQL</li><li>Supabase</li><li>Render</li><li>GitHub</li></ul>
+      </div>
+    </article>
+
+    <article class="entry">
+      <time datetime="2026-10-24">Oct 24</time>
+      <div>
+        <h3>Made district settings data-driven</h3>
+        <p class="plain">Adding a school district or changing its settings is now a database update instead of a code change.</p>
+        <figure class="dg">
+          <svg viewBox="0 0 560 205" role="img" aria-label="Before: four copies of district settings, each linked to the others by hand-syncing. After: one database feeds a GET /districts endpoint, which the website loads.">
+            <defs><marker id="o4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" class="ah"/></marker></defs>
+            <text class="lbl" x="0" y="16">Before</text>
+            <path class="ln dash" d="M62 64 H197 M62 154 H197 M62 84 V134 M197 84 V134 M115 84 L145 134 M145 84 L115 134"/>
+            <rect class="bx" x="10" y="44" width="105" height="40"/><text x="62" y="62" text-anchor="middle">List</text><text class="sm" x="62" y="77" text-anchor="middle">frontend</text>
+            <rect class="bx" x="145" y="44" width="105" height="40"/><text x="197" y="62" text-anchor="middle">Limits</text><text class="sm" x="197" y="77" text-anchor="middle">frontend</text>
+            <rect class="bx" x="10" y="134" width="105" height="40"/><text x="62" y="152" text-anchor="middle">Defaults</text><text class="sm" x="62" y="167" text-anchor="middle">frontend</text>
+            <rect class="bx" x="145" y="134" width="105" height="40"/><text x="197" y="152" text-anchor="middle">Constants</text><text class="sm" x="197" y="167" text-anchor="middle">backend</text>
+            <text class="sm" x="130" y="198" text-anchor="middle">one change, made in four places</text>
+            <path class="grid" d="M295 10 V200"/>
+            <text class="lbl" x="330" y="16">After</text>
+            <path class="bx hl" d="M394 40 v34 a46 10 0 0 0 92 0 v-34"/><ellipse class="bx hl" cx="440" cy="40" rx="46" ry="10"/>
+            <text x="440" y="70" text-anchor="middle">Database</text>
+            <path class="ln" d="M440 86 V105" marker-end="url(#o4)"/>
+            <rect class="bx dk" x="375" y="107" width="130" height="34"/><text class="on-dk" x="440" y="129" text-anchor="middle">GET /districts</text>
+            <path class="ln" d="M440 141 V160" marker-end="url(#o4)"/>
+            <rect class="bx" x="375" y="162" width="130" height="34"/><text x="440" y="184" text-anchor="middle">Website</text>
+          </svg>
+          <figcaption>Adding a district is now a database update, and the website picks it up automatically.</figcaption>
+        </figure>
+        <dl class="facts">
+          <dt>Why</dt><dd>The district list, input limits, and default values were hard-coded in three frontend files and in the backend, and they had to be kept in sync by hand.</dd>
+          <dt>How</dt><dd>Added a backend function that reads the <code>districts</code> and <code>leveled_districts</code> tables, only offers school levels with complete data, and caches the result for five minutes. It powers request validation and a new public <code>GET /districts</code> endpoint. In the React frontend, I deleted the three hard-coded files and loaded the options from that endpoint, with a loading state and a retry link.</dd>
+        </dl>
+        <ul class="stack"><li>Flask</li><li>React</li><li>TypeScript</li><li>PostgreSQL</li></ul>
+      </div>
+    </article>
+  </section>
+
+  <section id="read" class="study">
+    <div class="section-head"><span class="num">ii.</span><h2>Read</h2></div>
+    <p class="section-note">I closed out the SQL and networking sections of my reading list with a review quiz on each, then started on browser fundamentals: how a browser turns code into the page on screen.</p>
+
+    <article class="entry"><time datetime="2026-10-06">Oct 06</time><div><h3>Networking review and WebSockets</h3><p>A review quiz on TCP/IP, HTTP, TLS, DNS, and REST vs. gRPC (19 of 20), then WebSockets, which keep a connection open so a server can push updates in real time (12 of 12 on the follow-up quiz).</p></div></article>
+    <article class="entry"><time datetime="2026-10-08">Oct 08</time><div><h3>SQL review</h3><p>A cumulative quiz covering the advanced SQL series I finished last month: window functions, CTEs and recursive queries, indexing, transactions, joins, and JSON columns. I answered all 37 questions correctly.</p></div></article>
+    <article class="entry"><time datetime="2026-10-13">Oct 13</time><div><h3>The DOM and CSSOM</h3><p>How a browser turns HTML into the DOM tree and CSS into the CSSOM, how the cascade decides which style wins, and why some CSS and scripts block a page from rendering.</p></div></article>
+    <article class="entry"><time datetime="2026-10-15">Oct 15</time><div><h3>The rendering pipeline</h3><p>The steps a browser takes to turn a page's HTML and CSS into pixels on screen: style, layout, paint, and compositing.</p></div></article>
+    <article class="entry"><time datetime="2026-10-21">Oct 21</time><div><h3>Reflow and repaint</h3><p>Which page changes force the browser to recalculate layout and which only redraw, and why that affects performance.</p></div></article>
+    <article class="entry"><time datetime="2026-10-22">Oct 22</time><div><h3>The event loop</h3><p>How JavaScript handles clicks, timers, and network responses one at a time on a single thread.</p></div></article>
+  </section>
+
+  <section id="solve">
+    <div class="section-head"><span class="num">iii.</span><h2>Solve</h2></div>
+    <p class="section-note">I continued working through the <a href="https://neetcode.io/practice/practice/neetcode150">Blind 150</a> on Monday and Wednesday evenings, attempting each one without any outside assistance so the approach is entirely my own. I completed 12 this month, including my first Hard-level problem, bringing my total to 35.</p>
+  </section>
+
+  <nav class="pager" aria-label="Issues">
+    <a href="2026-09_september.html">&larr; No. 01</a>
+    <a href="../index.html#issues">All issues</a>
+  </nav>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>Matthew Manzella</span>
+    <span>Updated monthly</span>
+  </div>
+</footer>
+</body>
+</html>

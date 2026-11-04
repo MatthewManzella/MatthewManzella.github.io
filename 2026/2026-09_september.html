@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>September 2026 · Matthew Manzella</title>
+<meta name="description" content="What Matthew Manzella built, studied, and solved outside of work in September 2026.">
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="../index.html">Matthew Manzella</a>
+    <nav aria-label="Main">
+      <ul>
+        <li><a href="../index.html#areas">Areas</a></li>
+        <li><a href="../index.html#cleverbound">CleverBound</a></li>
+        <li><a href="../index.html#plan">Plan</a></li>
+        <li><a href="../index.html#issues" aria-current="page">Issues</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="issue">
+  <p class="issue-label">Issue No. 01</p>
+
+  <h1 class="issue-title">September <em>2026</em></h1>
+
+  <p class="lede">Most of September went into CleverBound, a school boundary planning website I have been building since a college project in fall 2024. A user picks a school district and sets limits such as school capacity, and an optimization algorithm assigns neighborhoods to schools. This month I made it more secure, redesigned it, and set up backups for its database.</p>
+
+  <ul class="glance">
+    <li><b>7</b><a href="#build">things built</a></li>
+    <li><b>8</b><a href="#read">topics studied</a></li>
+    <li><b>15</b><a href="#solve">challenges completed</a></li>
+  </ul>
+  <p class="tech"><span>Technologies</span> React, TypeScript, Tailwind CSS, Python, Flask, PostgreSQL, Supabase, Cloudflare, Render, Git, Claude Code</p>
+
+  <section id="build">
+    <div class="section-head"><span class="num">i.</span><h2>Build</h2></div>
+    <p class="section-note">Building happens on Saturdays, about two to three hours at a time. Everything below is from the software engineering phase of my CleverBound roadmap.</p>
+
+    <article class="entry">
+      <time datetime="2026-09-06">Sep 06</time>
+      <div>
+        <h3>Set up an AI coding assistant with limits</h3>
+        <p class="plain">I started using Claude Code, an AI assistant that can read and edit files on my computer, and restricted what it can access before using it on my own projects.</p>
+        <dl class="facts">
+          <dt>Why</dt><dd>An AI tool with file access can make mistakes or be misled by something it reads, so I wanted firm boundaries from the start.</dd>
+          <dt>How</dt><dd>Configured its permissions file to block reads outside my two project folders (one on my computer, one synced from Google Drive) and deny any edit to Git hook files. Wrote three custom skills that each generate a dated HTML log with embedded JSON metadata: one for study sessions, one for practice problems, and one for project decisions.</dd>
+          <dt>Result</dt><dd>Those logs are the source material for this page.</dd>
+        </dl>
+        <ul class="stack"><li>Claude Code</li><li>JSON</li><li>HTML</li></ul>
+      </div>
+    </article>
+
+    <article class="entry">
+      <time datetime="2026-09-06">Sep 06</time>
+      <div>
+        <h3>Required a pull request for every code change</h3>
+        <p class="plain">I made it impossible to push code straight to the main branch of CleverBound's frontend or backend repositories, the branch that goes live, without opening a pull request first.</p>
+        <figure class="dg">
+          <svg viewBox="0 0 560 150" role="img" aria-label="Git history: a feature branch splits off main and merges back through a pull request. A direct push to main is blocked.">
+            <defs><marker id="s1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" class="ah"/></marker></defs>
+            <path class="ink" d="M20 112 H540"/>
+            <text class="sm" x="20" y="140">main branch (the live code)</text>
+            <path class="ln ac" style="stroke-width:2" d="M150 112 C170 112 175 52 205 52 H385 C415 52 425 112 450 112"/>
+            <circle class="bx" cx="60" cy="112" r="7"/><circle class="bx" cx="150" cy="112" r="7"/>
+            <circle class="bx dk" cx="450" cy="112" r="8"/><circle class="bx" cx="520" cy="112" r="7"/>
+            <circle class="bx dk" cx="245" cy="52" r="7"/><circle class="bx dk" cx="325" cy="52" r="7"/>
+            <text class="sm" x="285" y="34" text-anchor="middle">feature branch</text>
+            <text class="res" x="458" y="80" style="font-size:14px">via pull request</text>
+            <text class="sm" x="20" y="22">direct push</text>
+            <path class="ln dash" d="M48 30 L84 88"/>
+            <path class="x" d="M82 76 l12 12 M94 76 l-12 12"/>
+            <text class="sm" x="100" y="78">blocked</text>
+          </svg>
+          <figcaption>Work happens on a separate branch and only reaches main through a reviewed pull request. A direct push to main is stopped before it leaves my machine.</figcaption>
+        </figure>
+        <dl class="facts">
+          <dt>Why</dt><dd>Pull requests create a checkpoint for reviewing each change. GitHub's built-in branch protection requires a paid plan for private repositories, and I wanted the rule in place right away.</dd>
+          <dt>How</dt><dd>Wrote a Git pre-push hook in shell script for both the frontend and backend repositories. It rejects any push to the main branch and prints the steps for creating a branch and pull request.</dd>
+        </dl>
+        <ul class="stack"><li>Git</li><li>GitHub</li><li>Shell</li></ul>
+      </div>
+    </article>
+
+    <article class="entry">
+      <time datetime="2026-09-12">Sep 12</time>
+      <div>
+        <h3>Protected the algorithm endpoint with Cloudflare</h3>
+        <p class="plain">I put Cloudflare, a service that filters incoming web traffic, in front of the part of CleverBound that runs the boundary algorithm.</p>
+        <figure class="dg">
+          <svg viewBox="0 0 560 220" role="img" aria-label="User traffic passes through the Cloudflare wall to the algorithm server. Bot traffic is stopped at the wall.">
+            <defs><marker id="s2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" class="ah"/></marker></defs>
+            <text class="sm" x="0" y="34">user</text><path class="ln" d="M42 30 H249"/>
+            <text class="sm" x="0" y="69">bot</text><path class="ln dash" d="M42 65 H232"/><path class="x" d="M234 59 l12 12 M246 59 l-12 12"/>
+            <text class="sm" x="0" y="104">user</text><path class="ln" d="M42 100 H249"/>
+            <text class="sm" x="0" y="139">bot</text><path class="ln dash" d="M42 135 H232"/><path class="x" d="M234 129 l12 12 M246 129 l-12 12"/>
+            <text class="sm" x="0" y="174">user</text><path class="ln" d="M42 170 H249"/>
+            <rect class="acf" x="250" y="12" width="26" height="176"/>
+            <text class="res" x="263" y="210" text-anchor="middle">Cloudflare</text>
+            <path class="ln" d="M276 30 L427 82" marker-end="url(#s2)"/>
+            <path class="ln" d="M276 100 H427" marker-end="url(#s2)"/>
+            <path class="ln" d="M276 170 L427 118" marker-end="url(#s2)"/>
+            <rect class="bx" x="430" y="60" width="130" height="80"/>
+            <path class="grid" d="M445 80 H515 M445 100 H515 M445 120 H515"/>
+            <circle class="acf" cx="538" cy="80" r="3"/><circle class="acf" cx="538" cy="100" r="3"/><circle class="acf" cx="538" cy="120" r="3"/>
+            <text x="495" y="164" text-anchor="middle">Algorithm API</text>
+            <text class="sm" x="495" y="182" text-anchor="middle">Flask on Render</text>
+          </svg>
+          <figcaption>Bots are filtered out and repeat callers are rate limited at Cloudflare, before they can reach the server that runs the algorithm.</figcaption>
+        </figure>
+        <dl class="facts">
+          <dt>Why</dt><dd>That endpoint is the most expensive part of the site to run, and it was publicly reachable with no protection. A bot could drive up hosting costs or take it offline.</dd>
+          <dt>How</dt><dd>Added <code>api.cleverbound.org</code> as a custom domain on Render, routed it through Cloudflare as a proxied CNAME with Full SSL, turned on Bot Fight Mode, and added a rate-limiting rule scoped to the <code>/align</code> endpoint. When domain verification failed, I queried Cloudflare's 1.1.1.1 resolver over DNS-over-HTTPS, found the record had been saved under the wrong name, and fixed it the same day instead of waiting on propagation.</dd>
+          <dt>Result</dt><dd>All production traffic to the algorithm now passes through bot filtering and a rate limit.</dd>
+        </dl>
+        <ul class="stack"><li>Cloudflare</li><li>DNS</li><li>Render</li><li>Flask</li><li>React</li></ul>
+      </div>
+    </article>
+
+    <article class="entry">
+      <time datetime="2026-09-12">Sep 12</time>
+      <div>
+        <h3>Reduced local setup to one command</h3>
+        <p class="plain">Running CleverBound on my laptop used to mean exporting the backend's API key by hand and passing an extra flag so the frontend pointed at my local backend instead of the live one. Now a single command does both.</p>
+        <dl class="facts">
+          <dt>How</dt><dd>Renamed the frontend's environment file to <code>.env.development</code> so Vite's default mode points at the local Flask server, and added python-dotenv so the backend loads its API key from a gitignored <code>.env</code> file. Production on Render is unaffected.</dd>
+        </dl>
+        <ul class="stack"><li>Vite</li><li>Python</li><li>python-dotenv</li></ul>
+      </div>
+    </article>
+
+    <article class="entry">
+      <time datetime="2026-09-20">Sep 20</time>
+      <div>
+        <h3>Redesigned the website</h3>
+        <p class="plain">I gave all eight pages of CleverBound and its four-step planning tool a new visual design without changing how anything works, then added layouts made specifically for tablets.</p>
+        <figure class="dg">
+          <svg viewBox="0 0 560 180" role="img" aria-label="Seventeen phone and laptop page thumbnails, each marked unchanged, next to a tablet showing the new layout.">
+            <text class="sm" x="0" y="20">Phone and laptop pages, screenshot hash before vs. after</text>
+            <rect class="bx" x="0" y="34" width="26" height="38"/><path class="ck" d="M6 53 l5 5 l10 -11"/><rect class="bx" x="32" y="34" width="26" height="38"/><path class="ck" d="M38 53 l5 5 l10 -11"/><rect class="bx" x="64" y="34" width="26" height="38"/><path class="ck" d="M70 53 l5 5 l10 -11"/><rect class="bx" x="96" y="34" width="26" height="38"/><path class="ck" d="M102 53 l5 5 l10 -11"/><rect class="bx" x="128" y="34" width="26" height="38"/><path class="ck" d="M134 53 l5 5 l10 -11"/><rect class="bx" x="160" y="34" width="26" height="38"/><path class="ck" d="M166 53 l5 5 l10 -11"/><rect class="bx" x="192" y="34" width="26" height="38"/><path class="ck" d="M198 53 l5 5 l10 -11"/><rect class="bx" x="224" y="34" width="26" height="38"/><path class="ck" d="M230 53 l5 5 l10 -11"/><rect class="bx" x="256" y="34" width="26" height="38"/><path class="ck" d="M262 53 l5 5 l10 -11"/><rect class="bx" x="0" y="80" width="26" height="38"/><path class="ck" d="M6 99 l5 5 l10 -11"/><rect class="bx" x="32" y="80" width="26" height="38"/><path class="ck" d="M38 99 l5 5 l10 -11"/><rect class="bx" x="64" y="80" width="26" height="38"/><path class="ck" d="M70 99 l5 5 l10 -11"/><rect class="bx" x="96" y="80" width="26" height="38"/><path class="ck" d="M102 99 l5 5 l10 -11"/><rect class="bx" x="128" y="80" width="26" height="38"/><path class="ck" d="M134 99 l5 5 l10 -11"/><rect class="bx" x="160" y="80" width="26" height="38"/><path class="ck" d="M166 99 l5 5 l10 -11"/><rect class="bx" x="192" y="80" width="26" height="38"/><path class="ck" d="M198 99 l5 5 l10 -11"/><rect class="bx" x="224" y="80" width="26" height="38"/><path class="ck" d="M230 99 l5 5 l10 -11"/>
+            <text class="big" x="0" y="166">17 / 17</text>
+            <text class="sm" x="104" y="166">identical</text>
+            <text class="sm" x="360" y="20">Tablet</text>
+            <rect class="ink" x="360" y="32" width="150" height="110" rx="12"/>
+            <rect class="acf" x="372" y="44" width="126" height="86" style="opacity:.18"/>
+            <path class="ln ac" d="M384 60 H486 M384 76 H460 M384 104 H486 M384 116 H440"/>
+            <text class="res" x="435" y="166" text-anchor="middle">new layout</text>
+          </svg>
+          <figcaption>A headless Chrome script screenshotted every page before and after the tablet layouts were added. Every phone and laptop page matched exactly, so only tablets changed.</figcaption>
+        </figure>
+        <dl class="facts">
+          <dt>Why</dt><dd>The original design looked like a generic template and did not reflect what the product does.</dd>
+          <dt>How</dt><dd>Built a geography-themed look: a seamless topographic background generated with a marching-squares contour algorithm, an SVG emblem with the tagline set along a circular path, and one typeface in place of five. Then added tablet-only layouts through custom Tailwind variants that only match touch devices at least 600px wide, so phones and laptops could not pick them up.</dd>
+          <dt>Result</dt><dd>To prove the tablet layouts left everything else alone, a headless Chrome script captured every page before and after that step and compared the screenshot hashes. All 17 phone and laptop pages were pixel-identical.</dd>
+        </dl>
+        <ul class="stack"><li>React</li><li>TypeScript</li><li>Tailwind CSS</li><li>SVG</li><li>Headless Chrome</li></ul>
+      </div>
+    </article>
+
+    <article class="entry">
+      <time datetime="2026-09-20">Sep 20</time>
+      <div>
+        <h3>Backed up the database and created a test copy</h3>
+        <p class="plain">I created a complete backup of CleverBound's PostgreSQL database, which holds its district, school, and neighborhood data, and a separate copy of it for testing.</p>
+        <figure class="dg">
+          <svg viewBox="0 0 560 205" role="img" aria-label="The live database is dumped into three files restored in order: roles, schema, data. They can create a development copy or restore production.">
+            <defs><marker id="s4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10z" class="ah"/></marker></defs>
+            <path class="bx hl" d="M18 50 v86 a52 13 0 0 0 104 0 v-86"/><ellipse class="bx hl" cx="70" cy="50" rx="52" ry="13"/>
+            <text x="70" y="172" text-anchor="middle">Live database</text>
+            <text class="sm" x="70" y="190" text-anchor="middle">on Supabase</text>
+            <path class="ln" d="M128 98 H197" marker-end="url(#s4)"/>
+            <text class="sm" x="162" y="88" text-anchor="middle">dump</text>
+            <text class="sm" x="270" y="24" text-anchor="middle">restored in this order</text>
+            <rect class="bx" x="200" y="36" width="140" height="38"/><text class="num" x="216" y="62">1</text><text x="236" y="61">roles.sql</text>
+            <rect class="bx hl" x="200" y="80" width="140" height="38"/><text class="num" x="216" y="106">2</text><text x="236" y="105">schema.sql</text>
+            <rect class="bx dk" x="200" y="124" width="140" height="38"/><text class="num on-dk" x="216" y="150">3</text><text class="on-dk" x="236" y="149">data.sql</text>
+            <path class="ln" d="M340 70 L417 50" marker-end="url(#s4)"/>
+            <path class="ln" d="M340 128 L417 146" marker-end="url(#s4)"/>
+            <path class="bx" d="M434 30 v34 a46 11 0 0 0 92 0 v-34"/><ellipse class="bx" cx="480" cy="30" rx="46" ry="11"/>
+            <text class="sm" x="480" y="100" text-anchor="middle">development copy</text>
+            <path class="bx" d="M434 128 v34 a46 11 0 0 0 92 0 v-34"/><ellipse class="bx" cx="480" cy="128" rx="46" ry="11"/>
+            <text class="sm" x="480" y="198" text-anchor="middle">production, if ever lost</text>
+          </svg>
+          <figcaption>Three files, restored in a fixed order, can rebuild the whole database from nothing. I used them to create the test copy.</figcaption>
+        </figure>
+        <dl class="facts">
+          <dt>Why</dt><dd>There was no way to rebuild the database if it were lost, and any testing would have touched live data.</dd>
+          <dt>How</dt><dd>Used the Supabase CLI, which wraps <code>pg_dump</code>, to export roles, schema, and data as three SQL files. Loaded them into a second Supabase project with <code>psql</code> in a single transaction, so a failed load rolls back cleanly.</dd>
+          <dt>Result</dt><dd>The production database can be rebuilt from scratch, and development runs against a realistic copy.</dd>
+        </dl>
+        <ul class="stack"><li>PostgreSQL</li><li>Supabase</li><li>psql</li></ul>
+      </div>
+    </article>
+
+    <article class="entry">
+      <time datetime="2026-09-26">Sep 26</time>
+      <div>
+        <h3>Tested AI assistant rules against real usage</h3>
+        <p class="plain">I tightened the permissions on Claude Code, my AI coding assistant, and tested each proposed rule against how I actually use the tool before keeping it.</p>
+        <dl class="facts">
+          <dt>How</dt><dd>Wrote a Python hook, a script the tool runs before every file edit, that blocks edits outside my two project folders, covered by a 22-case test suite. Prototyped a similar rule for shell commands and replayed 402 commands from my own history against it.</dd>
+          <dt>Result</dt><dd>The shell rule would have interrupted normal work far more often than it caught anything, so I kept the file rule and left shell commands to the tool's built-in safety checks.</dd>
+        </dl>
+        <ul class="stack"><li>Python</li><li>Claude Code</li></ul>
+      </div>
+    </article>
+  </section>
+
+  <section id="read" class="study">
+    <div class="section-head"><span class="num">ii.</span><h2>Read</h2></div>
+    <p class="section-note">Reading happens on Tuesday and Thursday evenings, working through the first tier of my reading list. I finished advanced SQL, which underpins CleverBound's database, then started on networking: what happens between typing a web address and a page loading.</p>
+
+    <article class="entry"><time datetime="2026-09-01">Sep 01</time><div><h3>Indexing and query plans</h3><p>How databases use B-tree indexes to avoid scanning every row, and how to read <em>EXPLAIN ANALYZE</em> output to check whether an index is used.</p></div></article>
+    <article class="entry"><time datetime="2026-09-03">Sep 03</time><div><h3>Transactions and isolation levels</h3><p>What goes wrong when several users read and write the same data at once, and how row locking and isolation levels prevent it.</p></div></article>
+    <article class="entry"><time datetime="2026-09-08">Sep 08</time><div><h3>Advanced joins and set operations</h3><p>Self joins, anti-joins with <em>NOT EXISTS</em>, semi-joins with <em>EXISTS</em>, and set operations such as <em>UNION</em>, <em>INTERSECT</em>, and <em>EXCEPT</em>, plus the join algorithms the database chooses between.</p></div></article>
+    <article class="entry"><time datetime="2026-09-12">Sep 12</time><div><h3>JSON columns, migrations, and replication</h3><p>Storing and indexing flexible data in Postgres <em>jsonb</em> columns, changing the structure of large tables without downtime, and keeping database copies in sync across servers.</p></div></article>
+    <article class="entry"><time datetime="2026-09-15">Sep 15</time><div><h3>TCP/IP</h3><p>How data is split into packets and delivered between machines: IP addressing and routing, ports, the TCP handshake, and how TCP handles lost packets and congestion compared with UDP.</p></div></article>
+    <article class="entry"><time datetime="2026-09-18">Sep 18</time><div><h3>HTTP and TLS</h3><p>How browsers and servers exchange requests (methods, status codes, cookies, HTTP/1.1 through HTTP/3), and how TLS encrypts the connection using certificates and a chain of trust.</p></div></article>
+    <article class="entry"><time datetime="2026-09-23">Sep 23</time><div><h3>DNS</h3><p>How a domain name resolves to a server address. This filled in the background on a misnamed DNS record I had fixed earlier in the month while setting up Cloudflare for CleverBound.</p></div></article>
+    <article class="entry"><time datetime="2026-09-24">Sep 24</time><div><h3>REST and gRPC</h3><p>Two common ways for services to talk to each other: REST over plain HTTP and JSON, and gRPC with Protocol Buffers and HTTP/2 streaming, including when each one fits.</p></div></article>
+  </section>
+
+  <section id="solve">
+    <div class="section-head"><span class="num">iii.</span><h2>Solve</h2></div>
+    <p class="section-note">On Monday and Wednesday evenings I work through the <a href="https://neetcode.io/practice/practice/neetcode150">Blind 150</a>, a set of 150 algorithm problems, focusing on one pattern each week. I attempt each one without any outside assistance, because working out an approach entirely on my own is what builds the problem-solving skill. I completed 15 this month, bringing my total to 23.</p>
+  </section>
+
+  <nav class="pager" aria-label="Issues">
+    <a href="../index.html#issues">All issues</a>
+    <a href="2026-10_october.html">No. 02 &rarr;</a>
+  </nav>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <span>Matthew Manzella</span>
+    <span>Updated monthly</span>
+  </div>
+</footer>
+</body>
+</html>
